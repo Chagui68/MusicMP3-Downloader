@@ -1,43 +1,103 @@
-# MusicMP3-Downloader
+# MusicMP3 → Note Block Converter
 
-A Java CLI tool that downloads songs as MP3 and optionally converts them to Minecraft Note Block Studio (`.nbs`) format.
+Convert any song to Minecraft Note Block Studio (`.nbs`) format with **source separation** and **multi-layer instrument assignment**.
+
+## Quick start
+
+```sh
+# 1. Activate the virtual environment (required)
+source .venv/bin/activate
+
+# 2. Run the converter
+musicmp3 "Never Gonna Give You Up"
+
+# Or use the web interface
+musicmp3-gui
+# → Opens http://localhost:7860 in your browser
+```
+
+> ML models (Demucs + basic-pitch) are already installed in `.venv`. If you need to install them from scratch, see [Installation](#installation).
+
+## Pipeline
+
+```
+YouTube / MP3 → Demucs (source separation) → stems (bass, drums, vocals, other)
+              → basic-pitch (audio → MIDI per stem)
+              → MIDI → NBS (octave compression, instrument mapping)
+              → .nbs file with dedicated layers
+```
+
+Each stem gets its own NBS layer with the appropriate instrument:
+- **Bass** → Bass Drum
+- **Drums** → Click
+- **Vocals** → Flute
+- **Other** → Piano
 
 ## Requirements
 
-- Java 21+
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) (installed and on `PATH`)
-- [FFmpeg](https://ffmpeg.org/) (installed and on `PATH`)
+- Python 3.10+
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) (on PATH)
+- [FFmpeg](https://ffmpeg.org/) (on PATH)
 
-### For .nbs conversion
-
-- `mp3-to-nbs` (recommended): `pip install git+https://github.com/devRaikou/mp3-to-nbs.git`
-- Or `basic-pitch` for MIDI intermediate: `pip install basic-pitch`
-
-## How it works
-
-1. You enter a song name.
-2. `yt-dlp` searches YouTube and downloads the best audio stream.
-3. FFmpeg converts it to MP3 and saves it to `downloads/<SongName>.mp3`.
-4. You're asked if you want to convert to `.nbs` format.
-5. If yes, `mp3-to-nbs` analyzes the audio and generates a Note Block Studio file in `nbs_songs/<SongName>.nbs`.
-   - Falls back to MP3 → WAV → MIDI via `basic-pitch` if `mp3-to-nbs` isn't installed.
-
-## Build & Run
+## Installation
 
 ```sh
-mvn package -q
-java -jar target/MusicMP3-Downloader-1.0-SNAPSHOT.jar
+# Clone and install
+git clone <repo>
+cd MusicMP3-Downloader
+python3 -m venv .venv
+.venv/bin/pip install -e .
+
+# For best quality (ML models):
+.venv/bin/pip install demucs torch torchaudio basic-pitch onnxruntime resampy pretty-midi mir-eval
 ```
+
+## Usage
+
+### CLI
+
+```sh
+# Download from YouTube + convert
+.venv/bin/musicmp3 "Never Gonna Give You Up"
+
+# Use a local file
+.venv/bin/musicmp3 --file path/to/song.mp3
+
+# Download only (skip conversion)
+.venv/bin/musicmp3 --download-only "Song Name"
+```
+
+### Web UI
+
+```sh
+.venv/bin/musicmp3-gui
+# Opens at http://localhost:7860
+```
+
+## Output
+
+- `downloads/` — MP3 files
+- `nbs_songs/` — NBS files (ready to open in OpenNoteBlockStudio or use in Minecraft)
+
+## Quality tiers
+
+| Tier | Setup | Result |
+|------|-------|--------|
+| **Best** | Demucs + basic-pitch | Full source separation, 4 layers, instrument assignment |
+| **Good** | basic-pitch only | Single layer, no stem separation |
+| **Basic** | librosa FFT fallback | Monophonic pitch detection, single layer |
 
 ## Project structure
 
 ```
-downloads/       # MP3 files (kept after conversion)
-nbs_songs/       # NBS files (for Minecraft Note Block Studio)
+musicmp3/
+├── cli.py           # CLI entry point
+├── converter.py     # Pipeline orchestrator
+├── downloader.py    # YouTube download (yt-dlp)
+├── gui.py           # Gradio web interface
+├── midi_to_nbs.py   # MIDI → NBS conversion
+├── nbs.py           # NBS binary format writer
+├── separator.py     # Demucs source separation
+└── transcriber.py   # Audio → MIDI (basic-pitch / FFT)
+pyproject.toml
 ```
-
-## Limitations
-
-- Requires `yt-dlp` and `FFmpeg` to be installed separately.
-- `.nbs` conversion requires `mp3-to-nbs` or `basic-pitch`.
-- No search selection — always picks the first YouTube result.
