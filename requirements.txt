@@ -1,3 +1,4 @@
+# Core
 mido
 soundfile
 numpy
@@ -5,14 +6,10 @@ matplotlib
 yt-dlp
 python-multipart
 
-[full]
-gradio
-pandas
-demucs
-torch
-torchaudio
-basic-pitch
-
-[server]
+# Server
 fastapi
 uvicorn
+
+# GUI (optional)
+gradio
+pandas

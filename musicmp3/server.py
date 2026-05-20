@@ -473,22 +473,27 @@ def generate_base_profile():
 def retrain_audio_model():
     """Re-train the audio model using all uploaded pairs."""
     train_dir = PROFILES_DIR / "training"
-    if not train_dir.exists():
-        raise HTTPException(400, "No training data. Upload NBS+audio pairs first.")
-
     profile_path = PROFILE_PATH
 
-    # Create a basic profile if none exists
-    if not profile_path.exists():
+    # Load existing profile or create a basic one
+    if profile_path.exists():
+        profile = load_profile(str(profile_path))
+    else:
         profile = {"songs_analyzed": 0, "total_notes_analyzed": 0,
                    "instrument_usage": {}, "role_recommendations": {},
                    "recommended_mapping": {}, "source_files": []}
-        save_profile(profile, str(profile_path))
-    else:
-        profile = load_profile(str(profile_path))
+
+    # If no training dir exists but profile already has an audio model, return it
+    if not train_dir.exists() or not any(train_dir.iterdir()):
+        existing_model = profile.get("audio_model")
+        if existing_model:
+            print("[server] No new training data, using existing audio model from profile")
+            return {"status": "ok", "notes_extracted": existing_model.get("notes_extracted", 0),
+                    "instruments_trained": len(existing_model.get("model", {}).get("instruments", {}))}
+        raise HTTPException(400, "No training data. Upload NBS+audio pairs first.")
 
     # Debug: list files in training dir for diagnostics
-    files_list = [f.name for f in train_dir.iterdir()] if train_dir.exists() else []
+    files_list = [f.name for f in train_dir.iterdir()]
     print(f"[server] Training dir files: {files_list}")
 
     # Train audio model from files already in the training dir

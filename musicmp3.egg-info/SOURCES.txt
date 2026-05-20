@@ -7,6 +7,8 @@ musicmp3/downloader.py
 musicmp3/gui.py
 musicmp3/midi_to_nbs.py
 musicmp3/nbs.py
+musicmp3/nbs_analyzer.py
+musicmp3/nbs_optimizer.py
 musicmp3/nbs_playback.py
 musicmp3/nbs_visualizer.py
 musicmp3/sample_loader.py

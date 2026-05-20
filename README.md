@@ -1,281 +1,194 @@
-# 🎵 MusicMP3 → Minecraft Note Block Converter
+# MusicMP3 — Minecraft Note Block Converter
 
-Convierte canciones de audio a archivos `.nbs` editables para Minecraft Note Block Studio, con un modelo de IA entrenable que aprende de tus conversiones.
+Convert any audio song to Minecraft Note Block Studio (.nbs) format with a trainable AI model that learns from your conversions.
 
-## ✨ Características
+## Features
 
-- 🎹 **Conversión automática** de MP3/WAV/FLAC a NBS
-- 🧠 **Modelo de IA entrenable** que mejora con cada canción
-- 🎼 **Múltiples instrumentos** (Piano, Bass, Snare, Guitar, etc.)
-- 📊 **Piano roll interactivo** con línea de reproducción sincronizada
-- 🎯 **Optimización inteligente** de notas
-- 🌐 **Interfaz web moderna** y fácil de usar
-- 📥 **Descarga automática** desde YouTube
-- 🎨 **Edición en tiempo real** de notas
+- **Automatic conversion** of MP3 / WAV / FLAC to NBS
+- **Trainable AI model** that improves with every song
+- **Multiple instruments** (Piano, Bass, Snare, Guitar, etc.)
+- **Interactive piano roll** with synchronized playhead
+- **Smart note optimization** via spectral analysis
+- **Web UI, GUI, and CLI** interfaces
+- **YouTube download** built-in
 
-## 🚀 Instalación Rápida
+## Quick Start
 
-### 1. Clonar el repositorio
+### Prerequisites
+
+- Python 3.10+
+- FFmpeg (for audio processing)
+
+### Install
+
 ```bash
-git clone https://github.com/tu-usuario/musicmp3-converter.git
+git clone <repo-url>
 cd musicmp3-converter
+
+# Create virtual environment
+python -m venv .venv
+.venv\Scripts\activate      # Windows
+# source .venv/bin/activate  # Linux/macOS
+
+# Install with server support
+pip install -e ".[server]"
+
+# For full install (GUI + ML separation):
+pip install -e ".[full,server]"
 ```
 
-### 2. Crear entorno virtual
+### Setup the model
+
+The repository includes a pre-trained `profile.json` (10 songs, 40k+ notes):
+
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate # Linux/Mac
-# .venv\Scripts\activate # Windows
+# Copy the pre-trained model to your user config directory
+mkdir -p ~/.musicmp3
+cp profile.json ~/.musicmp3/profile.json
 ```
 
-### 3. Instalar dependencias
-```bash
-pip install -r requirements.txt
-```
+### Start the server
 
-### 4. Configurar el modelo (2 opciones)
-
-#### Opción A: Con modelo pre-entrenado (Recomendado)
-El repositorio incluye `profile.json` base (10 canciones, 40k notas):
-```bash
-# Copiar modelo base a tu carpeta local
-cp profile.json ~/.musicmp3/
-
-# ¡Listo! Modelo base instalado
-# Verificar: ls -la ~/.musicmp3/profile.json
-```
-
-#### Opción B: Entrenar desde cero
-Si preferís entrenar tu propio modelo:
-```bash
-# Ejecutar script de configuración
-bash setup_model.sh
-
-# O entrenar manualmente con:
-python3 train_with_real_audio.py
-```
-
-### 5. Iniciar el servidor
 ```bash
 musicmp3-server
-# O: python -m musicmp3.server
+# or: python -m musicmp3.server
 ```
 
-### 6. Abrir en el navegador
-````
-http://127.0.0.1:8000
-````
-http://127.0.0.1:8000
-````
+Open **http://127.0.0.1:8000** in your browser.
 
-## 📖 Uso
+## Usage
 
-### Convertir una canción
+### Convert a song
 
-1. **Subir audio**: Arrastrar archivo o pegar URL de YouTube
-2. **Configurar**: Rango de notas, transposición, modo
-3. **Convertir**: Click en "Convertir audio → NBS"
-4. **Editar**: Ajustar notas en el piano roll
-5. **Descargar**: Exportar a `.nbs` para Minecraft
+1. **Upload audio** — drag a file or paste a YouTube URL
+2. **Configure** — note range, transpose, mode
+3. **Convert** — click "Convert audio -> NBS"
+4. **Edit** — adjust notes on the piano roll
+5. **Download** — export to `.nbs` for Minecraft
 
-### Entrenar el modelo
+### Train the model
 
-El modelo mejora automáticamente con cada conversión:
+The model improves automatically with each conversion:
 
-1. **Subir par NBS + Audio**: Sección "🧠 Entrenar modelo"
-2. **Click "⬆ Subir par"**: Para cada canción
-3. **Click "🔄 Reentrenar"**: Para actualizar el modelo
-4. **Disfrutar**: Mejores conversiones automáticamente
+1. Upload NBS + Audio pairs in the "Train model" section
+2. Click "Upload pair" for each song
+3. Click "Retrain" to update the model
 
-### Piano Roll Interactivo
+The pre-trained model ships with `profile.json` and works out of the box.
 
-- **Playhead sincronizado**: Línea roja sigue la reproducción
-- **Notas de colores**: Cada color es un instrumento diferente
-- **Zoom**: Acercar/alejar con los botones 🔍+/🔍−
-- **Edición**: Click y arrastrar para mover notas
-- **Reproducción**: Click en "▶ Play" para escuchar
+### CLI
 
-## 🎯 Modelos Disponibles
+```bash
+# Convert a local file
+musicmp3 --file song.mp3 -o output/
 
-### Instrumentos Soportados
-| ID | Instrumento | Rango |
-|----|-------------|-------|
-| 0  | Piano       | 0-87  |
-| 1  | Bass Drum   | 0-87  |
-| 2  | Snare       | 0-87  |
-| 3  | Click       | 0-87  |
-| 4  | Guitar      | 0-87  |
-| 5  | Bass        | 0-87  |
-| 6  | Bell        | 0-87  |
-| 7  | Chime       | 0-87  |
-| 8  | Flute       | 0-87  |
-| 9  | Xylophone   | 0-87  |
-| 10 | Iron Xylo   | 0-87  |
-| 11 | Cow Bell    | 0-87  |
+# Download and convert from YouTube
+musicmp3 "https://youtube.com/watch?v=..."
 
-### Entrenamiento Actual
-Por defecto, el modelo se entrena con:
-- Bad Apple!!
-- Believer
-- Bohemian Rhapsody
-- Teto - Birdbrain
-- Y más...
-
-**Base**: 10 canciones, 40,782 notas analizadas (10 instrumentos)
-
-**Recomendado**: Entrenar con más canciones para mejor precisión (ver scripts abajo)
-
-## 📁 Estructura del Proyecto
-
+# Download only
+musicmp3 "song name" --download-only
 ```
-musicmp3-converter/
-├── musicmp3/ # Código principal
-│ ├── server.py # Servidor FastAPI
-│ ├── converter.py # Conversión de audio
-│ ├── nbs.py # Manipulación de NBS
-│ ├── nbs_analyzer.py # Análisis y entrenamiento
-│ ├── nbs_optimizer.py # Optimización de notas
-│ ├── nbs_visualizer.py # Piano roll
-│ └── static/ # Frontend web
-│ ├── index.html
-│ ├── app.js
-│ ├── canvas.js
-│ └── style.css
-├── train_with_real_audio.py # Script de entrenamiento
-├── setup_model.sh # Configuración automática
-├── export_model.sh # Exportar modelo
-├── import_model.sh # Importar modelo
-├── profile.json # Modelo entrenado (compartible)
-├── requirements.txt # Dependencias
-└── README.md # Este archivo
+
+### GUI
+
+```bash
+musicmp3-gui
+```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `musicmp3` | CLI converter |
+| `musicmp3-server` | Web server (FastAPI) |
+| `musicmp3-gui` | Gradio GUI |
+| `python train_with_real_audio.py` | Train from YouTube songs |
+| `python train_20_more.py` | Train with extended dataset |
+
+## Supported Instruments
+
+| ID | Instrument | Range |
+|----|-----------|-------|
+| 0  | Piano     | 0-87  |
+| 1  | Bass Drum | 0-87  |
+| 2  | Snare     | 0-87  |
+| 3  | Click     | 0-87  |
+| 4  | Guitar    | 0-87  |
+| 5  | Bass      | 0-87  |
+| 6  | Bell      | 0-87  |
+| 7  | Chime     | 0-87  |
+| 8  | Flute     | 0-87  |
+| 9  | Xylophone | 0-87  |
+| 10 | Iron Xylo | 0-87  |
+| 11 | Cow Bell  | 0-87  |
+
+## Project Structure
+
 ```
 musicmp3-converter/
-├── musicmp3/              # Código principal
-│   ├── server.py          # Servidor FastAPI
-│   ├── converter.py       # Conversión de audio
-│   ├── nbs.py             # Manipulación de NBS
-│   ├── nbs_analyzer.py    # Análisis y entrenamiento
-│   ├── nbs_optimizer.py   # Optimización de notas
-│   ├── nbs_visualizer.py  # Piano roll
-│   └── static/            # Frontend web
+├── musicmp3/               # Core library
+│   ├── server.py           # FastAPI web server
+│   ├── converter.py        # Audio-to-NBS conversion
+│   ├── nbs.py              # NBS file manipulation
+│   ├── nbs_analyzer.py     # Training & audio analysis
+│   ├── nbs_optimizer.py    # Note optimization
+│   ├── nbs_visualizer.py   # Piano roll rendering
+│   ├── nbs_playback.py     # NBS audio playback
+│   ├── transcriber.py      # Audio-to-MIDI
+│   ├── separator.py        # Stem separation (Demucs)
+│   ├── downloader.py       # YouTube audio download
+│   ├── midi_to_nbs.py      # MIDI-to-NBS conversion
+│   ├── cli.py              # CLI entrypoint
+│   ├── gui.py              # Gradio GUI
+│   └── static/             # Web frontend
 │       ├── index.html
 │       ├── app.js
 │       ├── canvas.js
+│       ├── api.js
 │       └── style.css
-├── train_with_real_audio.py  # Script de entrenamiento
-├── setup_model.sh         # Configuración automática
-├── requirements.txt       # Dependencias
-└── README.md             # Este archivo
+├── profile.json            # Pre-trained model
+├── pyproject.toml          # Project config & dependencies
+├── requirements.txt        # Pip dependencies
+├── train_with_real_audio.py
+├── auto_train_model.py
+├── bulk_train.py
+├── setup_model.sh
+├── export_model.sh
+└── import_model.sh
 ```
 
-## 🔧 Comandos Útiles
+## Dependencies
 
-### Entrenamiento
-```bash
-# Entrenar con canciones de YouTube
-python3 train_with_real_audio.py
+### Core
+- `mido` — MIDI file handling
+- `soundfile` — Audio file I/O
+- `numpy` — Numerical processing
+- `matplotlib` — Piano roll visualization
+- `yt-dlp` — YouTube audio download
+- `python-multipart` — File uploads
 
-# Entrenar con 20+ canciones extra
-python3 train_20_more.py
+### Server
+- `fastapi` — Web framework
+- `uvicorn` — ASGI server
 
-# Entrenamiento automático
-bash setup_model.sh
-```
+### Full (optional)
+- `gradio` — GUI interface
+- `pandas` — Data handling
+- `demucs` — AI stem separation (requires PyTorch)
+- `librosa` — Audio analysis fallback
 
-### Exportar/Importar Modelo
-```bash
-# Exportar tu modelo entrenado (para compartir)
-bash export_model.sh
+Note: `basic-pitch` (TensorFlow-based MIDI transcription) requires TensorFlow, which is not yet available for Python 3.12 on Windows. The converter falls back to FFT-based pitch detection via `librosa`.
 
-# Importar modelo del repositorio
-bash import_model.sh
-```
-
-### Servidor
-```bash
-# Iniciar servidor
-musicmp3-server
-
-# O directamente
-python -m uvicorn musicmp3.server:app --host 127.0.0.1 --port 8000
-```
-
-## 📊 Progreso del Modelo
-
-| Etapa | Canciones | Notas | Instrumentos |
-|-------|-----------|-------|--------------|
-| Inicial | 4 | 17,047 | 11 |
-| Intermedio | 10 | 40,782 | 12 |
-| **Actual** | **10** | **40,782** | **10** |
-
-## 🔄 Compartir Modelos Entrenados
-
-### Subir tu modelo a GitHub
-Si entrenaste el modelo y querés compartirlo:
+## Sharing Models
 
 ```bash
-# 1. Asegurate de tener profile.json actualizado
-ls -la ~/.musicmp3/profile.json
+# Export your trained model
+cp ~/.musicmp3/profile.json profile.json
 
-# 2. Copialo al repositorio
-cp ~/.musicmp3/profile.json /path/to/musicmp3-converter/
-
-# 3. Commitealo
-git add profile.json
-git commit -m "Update trained model: 39 songs, 134k notes"
-git push
+# Import a model from the repo
+cp profile.json ~/.musicmp3/profile.json
 ```
 
-### Bajar modelo de GitHub
-Si el repositorio tiene `profile.json`:
+## License
 
-```bash
-# 1. Clona el repositorio (ya incluye profile.json)
-git clone https://github.com/tu-usuario/musicmp3-converter.git
-
-# 2. Copia el profile.json a tu carpeta local
-cp profile.json ~/.musicmp3/
-
-# 3. ¡Listo! Tu modelo ya tiene las canciones entrenadas
-```
-
-### Estado del profile.json en GitHub
-| Archivo | Estado | Descripción |
-|---------|--------|-------------|
-| `profile.json` | ✅ Incluido | Modelo base (10 canciones, 40k notas) |
-| `*.mp3, *.wav` | ❌ Excluido | Audio con copyright (no subir) |
-| `training_/` | ❌ Excluido | Datos temporales |
-
-**Nota**: El `profile.json` incluido es un modelo base. Para mejorar la precisión, entrená tu propio modelo con:
-```bash
-python3 train_with_real_audio.py  # Descarga y entrena con canciones reales
-```
-
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crear rama (`git checkout -b feature/nueva-funcion`)
-3. Commit cambios (`git commit -m 'Añadir nueva función'`)
-4. Push (`git push origin feature/nueva-funcion`)
-5. Abrir Pull Request
-
-## 📝 Licencia
-
-Este proyecto está bajo la licencia MIT.
-
-## 🙏 Agradecimientos
-
-- [NBSsongs](https://github.com/nickg2/NBSsongs) - Archivos NBS de ejemplo
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - Descarga de audio
-- [basic-pitch](https://github.com/spotify/basic-pitch) - Transcripción MIDI
-- [Demucs](https://github.com/facebookresearch/demucs) - Separación de stems
-
-## 🔗 Enlaces
-
-- [Minecraft Note Block Studio](https://www.minecraftnoteblockstudio.com/)
-- [Documentación de NBS](https://github.com/BigBangCS/NBSFormat)
-- [Issue Tracker](https://github.com/tu-usuario/musicmp3-converter/issues)
-
----
-
-**Hecho con ❤️ para la comunidad de Minecraft**
+MIT

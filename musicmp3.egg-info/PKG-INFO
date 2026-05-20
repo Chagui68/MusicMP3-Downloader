@@ -5,10 +5,16 @@ Summary: Convert any song to Minecraft Note Block Studio (.nbs) format
 Requires-Python: >=3.10
 Requires-Dist: mido
 Requires-Dist: soundfile
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Requires-Dist: yt-dlp
+Requires-Dist: python-multipart
 Provides-Extra: full
 Requires-Dist: gradio; extra == "full"
+Requires-Dist: pandas; extra == "full"
 Requires-Dist: demucs; extra == "full"
 Requires-Dist: torch; extra == "full"
+Requires-Dist: torchaudio; extra == "full"
 Requires-Dist: basic-pitch; extra == "full"
 Provides-Extra: server
 Requires-Dist: fastapi; extra == "server"
