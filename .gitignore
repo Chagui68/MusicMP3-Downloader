@@ -1,8 +1,37 @@
-.venv/
+# Python
 __pycache__/
-*.pyc
-*.egg-info/
-downloads/
-nbs_songs/
-dist/
-build/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# Model data (generated)
+profile.json  # Excluido por defecto (ver MODELO.md para compartir)
+*.mp3
+*.wav
+*.flac
+*.ogg
+training_/
+downloaded_audio/
+
+# User data (personal)
+~/.musicmp3/
+*.nbs
+!NBSsongs/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+train_*.log
