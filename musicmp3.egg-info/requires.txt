@@ -1,0 +1,12 @@
+mido
+soundfile
+
+[full]
+gradio
+demucs
+torch
+basic-pitch
+
+[server]
+fastapi
+uvicorn

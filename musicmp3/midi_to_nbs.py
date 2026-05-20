@@ -25,8 +25,9 @@ def midi_to_nbs(
     midi_path: str,
     stem_name: str = "other",
     instrument_override: int | None = None,
-    target_low: int = 12,
-    target_high: int = 72,
+    target_low: int = 33,
+    target_high: int = 80,
+    transpose: int = 0,
 ) -> list[dict]:
     mid = mido.MidiFile(midi_path)
 
@@ -64,7 +65,7 @@ def midi_to_nbs(
                     if dur_ticks < 10:
                         continue
                     start_sec = mido.tick2second(start_ticks, ticks_per_beat, tempo)
-                    nbs_key = compress_octave(midi_to_nbs_key(msg.note), target_low, target_high)
+                    nbs_key = compress_octave(midi_to_nbs_key(msg.note) + transpose, target_low, target_high)
                     tick = quantize_tick(start_sec)
                     notes_out.append({
                         "tick": tick,
@@ -78,7 +79,7 @@ def midi_to_nbs(
 
         for note, start_ticks in active.items():
             start_sec = mido.tick2second(start_ticks, ticks_per_beat, tempo)
-            nbs_key = compress_octave(midi_to_nbs_key(note), target_low, target_high)
+            nbs_key = compress_octave(midi_to_nbs_key(note) + transpose, target_low, target_high)
             tick = quantize_tick(start_sec)
             notes_out.append({
                 "tick": tick,

@@ -13,9 +13,18 @@ except ImportError:
     pass
 
 
-def audio_to_midi(input_path: str, output_midi: str) -> str | None:
+def audio_to_midi(
+    input_path: str,
+    output_midi: str,
+    onset_threshold: float = 0.3,
+    frame_threshold: float = 0.3,
+    minimum_note_length: int = 58,
+    melodia_trick: bool = True,
+    minimum_frequency: float = 80.0,
+    maximum_frequency: float = 2000.0,
+) -> str | None:
     if TRANSCRIPTION_AVAILABLE:
-        print(f"[transcriber] Using basic-pitch for {Path(input_path).name}")
+        print(f"[transcriber] basic-pitch (onset={onset_threshold} frame={frame_threshold} melodia={melodia_trick})")
         try:
             out_dir = str(Path(output_midi).parent)
             predict_and_save(
@@ -26,12 +35,12 @@ def audio_to_midi(input_path: str, output_midi: str) -> str | None:
                 save_model_outputs=False,
                 save_notes=False,
                 model_or_model_path=ICASSP_2022_MODEL_PATH,
-                onset_threshold=0.3,
-                frame_threshold=0.3,
-                minimum_note_length=58,
-                minimum_frequency=80.0,
-                maximum_frequency=2000.0,
-                melodia_trick=True,
+                onset_threshold=onset_threshold,
+                frame_threshold=frame_threshold,
+                minimum_note_length=minimum_note_length,
+                minimum_frequency=minimum_frequency,
+                maximum_frequency=maximum_frequency,
+                melodia_trick=melodia_trick,
             )
             midi_name = Path(input_path).stem + "_basic_pitch.mid"
             generated = Path(out_dir) / midi_name
@@ -42,6 +51,24 @@ def audio_to_midi(input_path: str, output_midi: str) -> str | None:
             print(f"[transcriber] basic-pitch failed ({e})")
 
     return _transcribe_fft(input_path, output_midi)
+
+
+def audio_to_midi_direct(
+    input_path: str,
+    output_midi: str,
+    onset_threshold: float = 0.3,
+    frame_threshold: float = 0.2,
+    melodia_trick: bool = False,
+) -> str | None:
+    """Direct transcription without stem separation — often better for rich mixes."""
+    return audio_to_midi(
+        input_path, output_midi,
+        onset_threshold=onset_threshold,
+        frame_threshold=frame_threshold,
+        melodia_trick=melodia_trick,
+        minimum_frequency=65.0,
+        maximum_frequency=2000.0,
+    )
 
 
 def _transcribe_fft(input_path: str, output_midi: str) -> str | None:
@@ -86,7 +113,7 @@ def _transcribe_fft(input_path: str, output_midi: str) -> str | None:
 
     n_frames = pitches.shape[1]
     active_notes: dict[int, float] = {}
-    midi_events: list[tuple[int, int, int]] = []
+    midi_events: list[tuple[int, int, int, int]] = []
 
     for frame in range(n_frames):
         time_sec = frame * frame_duration
@@ -112,21 +139,21 @@ def _transcribe_fft(input_path: str, output_midi: str) -> str | None:
                 duration = ticks_end - ticks_start
                 if duration < 1:
                     continue
-                midi_events.append((ticks_start, note, duration))
+                midi_events.append((ticks_start, note, duration, int(mag * 100)))
 
     for note, start in list(active_notes.items()):
         time_sec = start
         ticks_start = int(time_sec * ticks_per_beat * (tempo_bpm / 60))
-        midi_events.append((ticks_start, note, 120))
+        midi_events.append((ticks_start, note, 120, 80))
 
     midi_events.sort(key=lambda x: x[0])
 
     current_tick = 0
-    for tick, note, duration in midi_events:
+    for tick, note, duration, vel in midi_events:
         delta = tick - current_tick
         if delta < 0:
             continue
-        track.append(mido.Message("note_on", note=note, velocity=80, time=delta))
+        track.append(mido.Message("note_on", note=note, velocity=min(127, vel), time=delta))
         track.append(mido.Message("note_off", note=note, velocity=0, time=duration))
         current_tick = tick
 

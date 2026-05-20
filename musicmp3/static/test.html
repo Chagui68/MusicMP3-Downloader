@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Test Input</title>
+</head>
+<body>
+<h1>Test de Input File</h1>
+<input type="file" id="test-input" accept=".nbs" style="display: none;">
+<button id="test-btn">Click me</button>
+<div id="result"></div>
+
+<script>
+const btn = document.getElementById('test-btn');
+const input = document.getElementById('test-input');
+const result = document.getElementById('result');
+
+console.log('Button:', btn);
+console.log('Input:', input);
+
+btn.addEventListener('click', () => {
+  console.log('Button clicked, triggering input.click()');
+  input.click();
+});
+
+input.addEventListener('change', (e) => {
+  console.log('Input changed:', e.target.files[0]);
+  result.textContent = e.target.files[0] ? `File: ${e.target.files[0].name}` : 'No file';
+});
+</script>
+</body>
+</html>

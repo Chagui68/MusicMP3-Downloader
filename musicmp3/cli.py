@@ -12,6 +12,9 @@ def main():
     parser.add_argument("--file", "-f", help="Local audio file path")
     parser.add_argument("--output", "-o", default="nbs_songs", help="Output directory for .nbs files")
     parser.add_argument("--download-only", action="store_true", help="Only download, skip conversion")
+    parser.add_argument("--low", type=int, default=33, help="Lowest NBS key (default: 33)")
+    parser.add_argument("--high", type=int, default=80, help="Highest NBS key (default: 80)")
+    parser.add_argument("--transpose", type=int, default=0, help="Semitones to transpose (default: 0)")
 
     args = parser.parse_args()
 
@@ -34,7 +37,7 @@ def main():
         print(f"[main] Download-only mode. File at: {input_path}")
         return
 
-    result = convert_file(input_path, args.output)
+    result = convert_file(input_path, args.output, target_low=args.low, target_high=args.high, transpose=args.transpose)
     if result:
         print(f"\n Done! NBS file: {result}")
     else:

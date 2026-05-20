@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Model Status</title>
+<style>
+body { font-family: Arial; background: #1a1a2e; color: #eee; padding: 20px; }
+.card { background: #16213e; padding: 20px; border-radius: 8px; margin: 10px 0; }
+h1 { color: #e94560; }
+.stat { font-size: 24px; margin: 10px 0; }
+.stat b { color: #00d9ff; }
+pre { background: #0d1b2a; padding: 10px; border-radius: 5px; overflow: auto; max-height: 400px; }
+</style>
+</head>
+<body>
+<h1>🎵 Modelo Entrenado</h1>
+<div id="status">Cargando...</div>
+<div class="card">
+<h2>Lista de Canciones:</h2>
+<pre id="list">...</pre>
+</div>
+<script>
+fetch('/api/profile')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById('status').innerHTML = `
+      <div class="stat">Canciones: <b>${d.songs_analyzed || 0}</b></div>
+      <div class="stat">Notas: <b>${(d.total_notes || 0).toLocaleString()}</b></div>
+      <div class="stat">Instrumentos: <b>${Object.keys(d.instrument_usage || {}).length}</b></div>
+    `;
+  })
+  .catch(e => {
+    document.getElementById('status').textContent = 'Error: ' + e;
+  });
+
+fetch('/api/profile/model')
+  .then(r => r.json())
+  .then(d => {
+    const songs = d.audio_model?.source_files || [];
+    document.getElementById('list').textContent = songs.map((s, i) => `${i+1}. ${s}`).join('\n');
+  });
+</script>
+</body>
+</html>

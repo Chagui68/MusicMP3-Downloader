@@ -19,10 +19,15 @@ full = [
     "torch",
     "basic-pitch",
 ]
+server = [
+    "fastapi",
+    "uvicorn",
+]
 
 [project.scripts]
 musicmp3 = "musicmp3.cli:main"
 musicmp3-gui = "musicmp3.gui:main"
+musicmp3-server = "musicmp3.server:main"
 
 [tool.setuptools.packages.find]
 include = ["musicmp3*"]

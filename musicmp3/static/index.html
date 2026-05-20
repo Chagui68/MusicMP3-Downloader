@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicMP3 → NBS Editor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+    <!-- Header -->
+    <header>
+        <h1>🎵 MusicMP3 → Minecraft Note Block Editor</h1>
+        <div class="status-bar">
+            <span id="status">Ready</span>
+            <button id="btn-download" disabled>⬇ Download NBS</button>
+        </div>
+    </header>
+
+    <div class="main-grid">
+        <!-- Panel Izquierdo: Acciones principales -->
+        <aside class="panel-left">
+            
+<!-- 1. Cargar NBS -->
+<section class="card card-primary">
+<h3>🎵 1. Cargar NBS</h3>
+<p class="hint">Subí un archivo .nbs para ver y editar</p>
+
+<!-- Input file visible -->
+<input type="file" id="input-nbs" accept=".nbs" style="width: 100%; padding: 12px; margin-bottom: 10px; background: #0d1b2a; border: 2px solid #0f3460; border-radius: 6px; color: #e0e0e0; cursor: pointer;">
+
+<!-- Botón para renderizar -->
+<button id="btn-render-upload" style="width: 100%; margin-bottom: 10px;" disabled>🔊 Renderizar Audio</button>
+
+<div id="nbs-info" class="info-box" style="display:none;">
+<strong id="nbs-name">—</strong><br>
+<span id="nbs-stats">0 notas</span>
+</div>
+</section>
+
+            <!-- 2. O convertir desde audio -->
+            <section class="card">
+                <h3>🔄 2. O convertir desde audio</h3>
+                <label>YouTube</label>
+                <input type="text" id="input-query" placeholder="Nombre de la canción">
+                <label>O subí audio</label>
+                <input type="file" id="input-file" accept=".mp3,.wav,.flac,.m4a,.ogg">
+                <label>Modo</label>
+                <select id="input-mode">
+                    <option value="full">🎛 Full (Demucs + basic-pitch)</option>
+                    <option value="direct">🎯 Direct (básico)</option>
+                    <option value="whiten">🔧 Whiten (agresivo)</option>
+                    <option value="fft">📐 FFT (sin ML)</option>
+                </select>
+                <div class="slider-group">
+                    <label>Nota mín <span id="val-low">33</span></label>
+                    <input type="range" id="slider-low" min="0" max="57" value="33">
+                    <label>Nota máx <span id="val-high">80</span></label>
+                    <input type="range" id="slider-high" min="57" max="90" value="80">
+                    <label>Transponer <span id="val-transpose">0</span></label>
+                    <input type="range" id="slider-transpose" min="-24" max="24" value="0">
+                </div>
+                <button id="btn-convert">🎵 Convertir audio → NBS</button>
+            </section>
+
+<!-- Estadísticas -->
+<section class="card">
+<h3>📊 Estadísticas</h3>
+<div id="stats" style="min-height: 20px;">—</div>
+<div id="inst-legend" style="margin-top: 12px;"></div>
+</section>
+
+<!-- Entrenamiento -->
+<section class="card">
+<h3>🧠 Entrenar modelo</h3>
+<p class="hint">Subí pares NBS + audio para entrenar el modelo</p>
+
+<label>1. Subí archivo NBS</label>
+<input type="file" id="train-nbs" accept=".nbs">
+
+<label>2. Subí audio (.mp3, .wav, .flac)</label>
+<input type="file" id="train-audio" accept=".mp3,.wav,.flac">
+
+<div class="train-actions">
+<button id="btn-upload-pair" class="secondary">⬆ Subir par</button>
+<button id="btn-relearn" class="secondary">🔄 Reentrenar</button>
+<button id="btn-gen-profile" class="secondary">📁 Perfil</button>
+</div>
+
+<div id="train-status" class="train-status"></div>
+
+<!-- Lista de archivos entrenados -->
+<div id="training-list" style="margin-top: 15px; max-height: 200px; overflow-y: auto;">
+<strong>Archivos subidos:</strong>
+<ul id="training-files-list" style="list-style: none; padding: 5px; font-size: 12px; color: #aaa;">
+<li>Ningún archivo subido aún</li>
+</ul>
+</div>
+</section>
+        </aside>
+
+        <!-- Centro: Piano roll -->
+        <main class="panel-center">
+<div class="toolbar">
+    <span id="note-count">0 notas</span>
+    <span id="zoom-info">Zoom: 1x</span>
+    <div class="toolbar-group">
+        <button id="btn-zoom-in" title="Acercar">🔍+</button>
+        <button id="btn-zoom-out" title="Alejar">🔍−</button>
+    </div>
+    <div class="toolbar-group">
+        <button id="btn-render" disabled>🔊 Render</button>
+        <button id="btn-interactive-roll" disabled>🎹 Ver</button>
+    </div>
+    <div class="toolbar-group">
+        <button id="btn-optimize" disabled>🧠 Optimizar</button>
+        <button id="btn-delete-note" disabled>🗑 Borrar</button>
+    </div>
+    <div class="toolbar-group">
+        <button id="btn-download-nbs" disabled class="primary">⬇ NBS</button>
+        <button id="btn-download-wav" disabled>⬇ WAV</button>
+    </div>
+</div>
+            <div id="canvas-wrapper">
+                <canvas id="piano-roll"></canvas>
+                <div id="canvas-placeholder">Cargá un NBS o convertí un audio para comenzar</div>
+            </div>
+        </main>
+
+        <!-- Derecha: Editor y audio -->
+        <aside class="panel-right">
+            <!-- Propiedades de nota -->
+            <section class="card">
+                <h3>✏️ Nota seleccionada</h3>
+                <div class="note-props">
+                    <label>Tick <input type="number" id="prop-tick" min="0"></label>
+                    <label>Nota <input type="number" id="prop-key" min="0" max="87"></label>
+                    <label>Instrumento <select id="prop-inst"></select></label>
+                    <label>Velocidad <input type="range" id="prop-vel" min="0" max="100" value="100"> <span id="val-vel">100</span></label>
+                    <label>Paneo <input type="range" id="prop-pan" min="0" max="200" value="100"> <span id="val-pan">100</span></label>
+                    <button id="btn-save-note" disabled>💾 Guardar</button>
+                </div>
+            </section>
+
+            <!-- Reproductor de audio -->
+            <section class="card card-audio">
+                <h3>▶ Reproductor</h3>
+                <audio id="audio-player" controls style="width:100%"></audio>
+                <div id="audio-info" class="info-box" style="display:none">
+                    <span id="audio-duration">0:00</span>
+                </div>
+            </section>
+
+            <!-- Tabla de notas -->
+            <section class="card">
+                <h3>📋 Lista de notas</h3>
+                <div id="table-wrapper">
+                    <table id="note-table">
+                        <thead><tr><th>Tick</th><th>Nota</th><th>Inst</th><th>Vel</th><th>Paneo</th></tr></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+                <div class="table-actions">
+                    <button id="btn-add-note">➕ Agregar</button>
+                    <button id="btn-sync-table" disabled>🔄 Sincronizar</button>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<script src="api.js"></script>
+<script src="canvas.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

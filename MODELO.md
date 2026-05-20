@@ -154,3 +154,4 @@ Para ver las tuyas:
 ```bash
 cat ~/.musicmp3/profile.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(f'Canciones: {d.get(\"songs_analyzed\", 0)}'); print(f'Notas: {d.get(\"total_notes_analyzed\", 0)}')"
 ```
+
