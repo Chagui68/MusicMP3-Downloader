@@ -191,4 +191,4 @@ cp profile.json ~/.musicmp3/profile.json
 
 ## License
 
-MIT
+GNU General Public License v3.0

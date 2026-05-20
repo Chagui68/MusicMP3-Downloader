@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "musicmp3"
 version = "2.0.0"
 description = "Convert any song to Minecraft Note Block Studio (.nbs) format"
+license = { text = "GPL-3.0-only" }
 requires-python = ">=3.10"
 dependencies = [
     "mido",
